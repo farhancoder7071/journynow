@@ -111,7 +111,7 @@ export class MemStorage implements IStorage {
     this.users.set(1, {
       id: 1,
       username: "admin",
-      password: "7f3f37fa7fb8ce4df11a0ad85b5ec7edf9e08fba4b8bea97bf3ca967b097b3c5c2e02f46f6f7c14cd3f16783ffc6b3a92aa1eebc15ed3eb6e4b8cdb6091a51db.55c1956e7b29b04b", // 'admin123' hashed
+      password: "25eb0c0f6784b8c8ea92353713c7ea738111afaf4d950ddc12cb63941ec20572c9bb4bee6429a3856f6978172adc7e8d1e579f21c88559424ce56a02b8db578f.c85d00a12ce1c57fe08e8b227de2f461", // 'admin123' hashed
       fullName: "Admin User",
       role: "admin"
     });
