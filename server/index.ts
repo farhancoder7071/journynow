@@ -2,6 +2,12 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
+// Set a default SESSION_SECRET if one is not already set
+if (!process.env.SESSION_SECRET) {
+  process.env.SESSION_SECRET = "secure-admin-dashboard-session-secret";
+  log("Using default SESSION_SECRET");
+}
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
