@@ -178,6 +178,40 @@ export default function AdminDashboard() {
             </TabsList>
             
             <TabsContent value="overview" className="space-y-6">
+              <div className="bg-[#253349] rounded-xl p-6 mb-8">
+                <h2 className="text-2xl font-bold mb-4">Transit System Overview</h2>
+                <p className="text-gray-300 mb-6">
+                  Welcome to the administrative dashboard for the Transit Management System. 
+                  This overview provides real-time statistics and system health indicators.
+                </p>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="flex flex-col items-center bg-[#0F172A] p-4 rounded-lg">
+                    <Train className="h-8 w-8 text-[#1976D2] mb-2" />
+                    <span className="text-lg font-bold">{trainRoutes.length}</span>
+                    <span className="text-xs text-gray-400">Train Routes</span>
+                  </div>
+                  
+                  <div className="flex flex-col items-center bg-[#0F172A] p-4 rounded-lg">
+                    <Bus className="h-8 w-8 text-[#FF4081] mb-2" />
+                    <span className="text-lg font-bold">{busRoutes.length}</span>
+                    <span className="text-xs text-gray-400">Bus Routes</span>
+                  </div>
+                  
+                  <div className="flex flex-col items-center bg-[#0F172A] p-4 rounded-lg">
+                    <Users2 className="h-8 w-8 text-green-500 mb-2" />
+                    <span className="text-lg font-bold">{crowdReports.length}</span>
+                    <span className="text-xs text-gray-400">Crowd Reports</span>
+                  </div>
+                  
+                  <div className="flex flex-col items-center bg-[#0F172A] p-4 rounded-lg">
+                    <Laptop className="h-8 w-8 text-yellow-500 mb-2" />
+                    <span className="text-lg font-bold">{adSettings.length}</span>
+                    <span className="text-xs text-gray-400">Ad Settings</span>
+                  </div>
+                </div>
+              </div>
+            
               {/* Dashboard Stats */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                 <StatsCard
