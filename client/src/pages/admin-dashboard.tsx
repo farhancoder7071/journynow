@@ -48,17 +48,11 @@ export default function AdminDashboard() {
     }
   }, [location]);
   
-  // Toggle admin view when button is clicked
+  // Admin toggle functionality removed for security
   const toggleAdminView = () => {
-    setIsAdminView(!isAdminView);
+    // This function no longer toggles but stays as a placeholder
+    console.log("Admin toggle functionality disabled for security");
   };
-  
-  // Redirect to user dashboard if not in admin view
-  useEffect(() => {
-    if (!isAdminView) {
-      setLocation("/");
-    }
-  }, [isAdminView, setLocation]);
   
   // Fetch admin data - users
   const { 

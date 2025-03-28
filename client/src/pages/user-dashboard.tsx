@@ -14,19 +14,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function UserDashboard() {
   const { user } = useAuth();
-  const [isAdminView, setIsAdminView] = useState(false);
-  
-  // Toggle admin view when button is clicked
-  const toggleAdminView = () => {
-    setIsAdminView(!isAdminView);
-  };
-  
-  // Redirect to admin dashboard if in admin view
-  useEffect(() => {
-    if (isAdminView) {
-      window.location.href = "/admin";
-    }
-  }, [isAdminView]);
+  // Admin toggle functionality removed for security
+  // Empty function to satisfy header prop requirements
+  const toggleAdminView = () => {};
   
   // Fetch user activities
   const { 

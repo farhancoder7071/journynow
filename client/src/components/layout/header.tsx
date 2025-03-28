@@ -128,15 +128,7 @@ export function Header({ isAdminView, toggleAdminView }: HeaderProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
               
-              {user.role === "admin" && (
-                <Button 
-                  onClick={toggleAdminView} 
-                  variant={isAdminView ? "secondary" : "default"}
-                  className={`ml-3 ${isAdminView ? 'bg-[#8B5CF6] hover:bg-opacity-90 text-white' : 'bg-[#6366F1] hover:bg-opacity-90 text-white'}`}
-                >
-                  {isAdminView ? 'View User Interface' : 'Switch to Admin'}
-                </Button>
-              )}
+              {/* Admin toggle button removed for security */}
             </div>
           ) : (
             <div className="flex space-x-4">
