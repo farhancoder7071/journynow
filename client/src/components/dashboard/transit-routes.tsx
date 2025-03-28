@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BusRoute, TrainRoute, CrowdReport } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -20,7 +21,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Train,
@@ -29,9 +29,7 @@ import {
   Clock,
   ChevronRight,
   CircleDot,
-  AlertCircle,
-  Calendar,
-  MapPin,
+  Search,
 } from "lucide-react";
 
 export function TransitRoutes() {
@@ -39,6 +37,8 @@ export function TransitRoutes() {
   const [selectedBusRouteId, setSelectedBusRouteId] = useState<number | null>(null);
   const [showCrowdReportDialog, setShowCrowdReportDialog] = useState(false);
   const [selectedTransportType, setSelectedTransportType] = useState<"train" | "bus" | null>(null);
+  const [trainSearchQuery, setTrainSearchQuery] = useState("");
+  const [busSearchQuery, setBusSearchQuery] = useState("");
   
   // Fetch train routes
   const { 
@@ -133,6 +133,32 @@ export function TransitRoutes() {
     }
     return "";
   };
+  
+  // Filter train routes based on search query
+  const filteredTrainRoutes = trainRoutes.filter(route => {
+    if (!trainSearchQuery) return true;
+    const query = trainSearchQuery.toLowerCase();
+    return (
+      route.routeName.toLowerCase().includes(query) ||
+      route.sourceStation.toLowerCase().includes(query) ||
+      route.destinationStation.toLowerCase().includes(query) ||
+      route.trainNumber.toLowerCase().includes(query) ||
+      route.trainType.toLowerCase().includes(query)
+    );
+  });
+  
+  // Filter bus routes based on search query
+  const filteredBusRoutes = busRoutes.filter(route => {
+    if (!busSearchQuery) return true;
+    const query = busSearchQuery.toLowerCase();
+    return (
+      route.routeName.toLowerCase().includes(query) ||
+      route.sourceStop.toLowerCase().includes(query) ||
+      route.destinationStop.toLowerCase().includes(query) ||
+      route.routeNumber.toLowerCase().includes(query) ||
+      route.busType.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <Card className="bg-white shadow">
@@ -158,53 +184,69 @@ export function TransitRoutes() {
             ) : trainRoutes.length === 0 ? (
               <div className="py-4 text-center text-gray-500">No train routes available</div>
             ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Route</TableHead>
-                      <TableHead>From</TableHead>
-                      <TableHead>To</TableHead>
-                      <TableHead>Departure</TableHead>
-                      <TableHead>Arrival</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {trainRoutes.map((route) => (
-                      <TableRow key={route.id}>
-                        <TableCell className="font-medium">{route.routeName}</TableCell>
-                        <TableCell>{route.sourceStation}</TableCell>
-                        <TableCell>{route.destinationStation}</TableCell>
-                        <TableCell>{formatTime(route.departureTime)}</TableCell>
-                        <TableCell>{formatTime(route.arrivalTime)}</TableCell>
-                        <TableCell>
-                          <Badge className={
-                            route.status === "On Time" ? "bg-green-100 text-green-800" :
-                            route.status === "Delayed" ? "bg-yellow-100 text-yellow-800" :
-                            route.status === "Cancelled" ? "bg-red-100 text-red-800" :
-                            "bg-blue-100 text-blue-800"
-                          }>
-                            {route.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleTrainRouteClick(route.id)}
-                            className="flex items-center text-blue-600"
-                          >
-                            <Users className="w-4 h-4 mr-1" />
-                            Crowd
-                            <ChevronRight className="w-4 h-4 ml-1" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <div>
+                <div className="relative mb-4">
+                  <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                  <Input
+                    placeholder="Search train routes, stations, or train types..."
+                    value={trainSearchQuery}
+                    onChange={(e) => setTrainSearchQuery(e.target.value)}
+                    className="pl-8"
+                  />
+                </div>
+                
+                {filteredTrainRoutes.length === 0 ? (
+                  <div className="py-4 text-center text-gray-500">No results found for "{trainSearchQuery}"</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Route</TableHead>
+                          <TableHead>From</TableHead>
+                          <TableHead>To</TableHead>
+                          <TableHead>Departure</TableHead>
+                          <TableHead>Arrival</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredTrainRoutes.map((route) => (
+                          <TableRow key={route.id}>
+                            <TableCell className="font-medium">{route.routeName}</TableCell>
+                            <TableCell>{route.sourceStation}</TableCell>
+                            <TableCell>{route.destinationStation}</TableCell>
+                            <TableCell>{formatTime(route.departureTime)}</TableCell>
+                            <TableCell>{formatTime(route.arrivalTime)}</TableCell>
+                            <TableCell>
+                              <Badge className={
+                                route.status === "On Time" ? "bg-green-100 text-green-800" :
+                                route.status === "Delayed" ? "bg-yellow-100 text-yellow-800" :
+                                route.status === "Cancelled" ? "bg-red-100 text-red-800" :
+                                "bg-blue-100 text-blue-800"
+                              }>
+                                {route.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleTrainRouteClick(route.id)}
+                                className="flex items-center text-blue-600"
+                              >
+                                <Users className="w-4 h-4 mr-1" />
+                                Crowd
+                                <ChevronRight className="w-4 h-4 ml-1" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </div>
             )}
           </TabsContent>
@@ -215,46 +257,62 @@ export function TransitRoutes() {
             ) : busRoutes.length === 0 ? (
               <div className="py-4 text-center text-gray-500">No bus routes available</div>
             ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Route</TableHead>
-                      <TableHead>From</TableHead>
-                      <TableHead>To</TableHead>
-                      <TableHead>Departure</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {busRoutes.map((route) => (
-                      <TableRow key={route.id}>
-                        <TableCell className="font-medium">{route.routeName}</TableCell>
-                        <TableCell>{route.sourceStop}</TableCell>
-                        <TableCell>{route.destinationStop}</TableCell>
-                        <TableCell>{formatTime(route.departureTime)}</TableCell>
-                        <TableCell>
-                          <Badge className="bg-green-100 text-green-800">
-                            {route.isActive ? "Active" : "Inactive"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleBusRouteClick(route.id)}
-                            className="flex items-center text-blue-600"
-                          >
-                            <Users className="w-4 h-4 mr-1" />
-                            Crowd
-                            <ChevronRight className="w-4 h-4 ml-1" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <div>
+                <div className="relative mb-4">
+                  <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                  <Input
+                    placeholder="Search bus routes, stops, or bus types..."
+                    value={busSearchQuery}
+                    onChange={(e) => setBusSearchQuery(e.target.value)}
+                    className="pl-8"
+                  />
+                </div>
+                
+                {filteredBusRoutes.length === 0 ? (
+                  <div className="py-4 text-center text-gray-500">No results found for "{busSearchQuery}"</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Route</TableHead>
+                          <TableHead>From</TableHead>
+                          <TableHead>To</TableHead>
+                          <TableHead>Departure</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredBusRoutes.map((route) => (
+                          <TableRow key={route.id}>
+                            <TableCell className="font-medium">{route.routeName}</TableCell>
+                            <TableCell>{route.sourceStop}</TableCell>
+                            <TableCell>{route.destinationStop}</TableCell>
+                            <TableCell>{formatTime(route.departureTime)}</TableCell>
+                            <TableCell>
+                              <Badge className="bg-green-100 text-green-800">
+                                {route.isActive ? "Active" : "Inactive"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleBusRouteClick(route.id)}
+                                className="flex items-center text-blue-600"
+                              >
+                                <Users className="w-4 h-4 mr-1" />
+                                Crowd
+                                <ChevronRight className="w-4 h-4 ml-1" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </div>
             )}
           </TabsContent>

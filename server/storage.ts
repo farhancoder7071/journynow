@@ -130,19 +130,80 @@ export class MemStorage implements IStorage {
     // Initialize with some sample train route data
     this.trainRoutes.set(1, {
       id: 1,
-      routeName: "Central Line",
+      routeName: "Central Line Express",
       sourceStation: "Mumbai Central",
       destinationStation: "Thane",
       departureTime: "06:00",
       arrivalTime: "07:15",
       status: "on-time",
       trainNumber: "MUM-001",
+      trainType: "express",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    
+    this.trainRoutes.set(2, {
+      id: 2,
+      routeName: "Western Line",
+      sourceStation: "Churchgate",
+      destinationStation: "Borivali",
+      departureTime: "07:30",
+      arrivalTime: "08:45",
+      status: "on-time",
+      trainNumber: "MUM-002",
       trainType: "local",
       isActive: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
-    this.trainRouteIdCounter = 2;
+    
+    this.trainRoutes.set(3, {
+      id: 3,
+      routeName: "Harbour Line",
+      sourceStation: "CSMT",
+      destinationStation: "Panvel",
+      departureTime: "08:15",
+      arrivalTime: "09:30",
+      status: "delayed",
+      trainNumber: "MUM-003",
+      trainType: "local",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    
+    this.trainRoutes.set(4, {
+      id: 4,
+      routeName: "Mumbai-Delhi Rajdhani",
+      sourceStation: "Mumbai Central",
+      destinationStation: "New Delhi",
+      departureTime: "16:35",
+      arrivalTime: "08:35",
+      status: "on-time",
+      trainNumber: "12951",
+      trainType: "rajdhani",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    
+    this.trainRoutes.set(5, {
+      id: 5,
+      routeName: "Mumbai-Pune Intercity",
+      sourceStation: "Mumbai CSMT",
+      destinationStation: "Pune",
+      departureTime: "07:15",
+      arrivalTime: "10:25",
+      status: "on-time",
+      trainNumber: "12123",
+      trainType: "intercity",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    
+    this.trainRouteIdCounter = 6;
     
     // Initialize with some sample bus route data
     this.busRoutes.set(1, {
@@ -160,7 +221,72 @@ export class MemStorage implements IStorage {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
-    this.busRouteIdCounter = 2;
+    
+    this.busRoutes.set(2, {
+      id: 2,
+      routeName: "Bandra Local",
+      routeNumber: "BUS-211",
+      sourceStop: "Bandra",
+      destinationStop: "Kurla",
+      departureTime: "08:00",
+      arrivalTime: "09:15",
+      frequency: "every 10 min",
+      busType: "local",
+      fare: "₹25",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    
+    this.busRoutes.set(3, {
+      id: 3,
+      routeName: "Worli Connector",
+      routeNumber: "BUS-307",
+      sourceStop: "Worli",
+      destinationStop: "BKC",
+      departureTime: "09:00",
+      arrivalTime: "10:15",
+      frequency: "every 20 min",
+      busType: "air-conditioned",
+      fare: "₹45",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    
+    this.busRoutes.set(4, {
+      id: 4,
+      routeName: "South Mumbai Loop",
+      routeNumber: "BUS-500",
+      sourceStop: "CSMT",
+      destinationStop: "Nariman Point",
+      departureTime: "06:30",
+      arrivalTime: "07:15",
+      frequency: "every 30 min",
+      busType: "mini",
+      fare: "₹20",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    
+    this.busRoutes.set(5, {
+      id: 5,
+      routeName: "Airport Express",
+      routeNumber: "BUS-A1",
+      sourceStop: "Andheri",
+      destinationStop: "T2 Airport",
+      departureTime: "05:00",
+      arrivalTime: "05:45",
+      frequency: "every 60 min",
+      busType: "premium",
+      fare: "₹100",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    
+    this.busRouteIdCounter = 6;
     
     // Initialize with some sample app settings
     const initialSettings = [
