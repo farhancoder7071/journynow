@@ -132,7 +132,7 @@ export const appSettings = pgTable("app_settings", {
   category: text("category").notNull(),
   key: text("key").notNull(),
   value: text("value").notNull(),
-  updatedBy: integer("updated_by").default(null),
+  updatedBy: integer("updated_by"),
   updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
 });
 

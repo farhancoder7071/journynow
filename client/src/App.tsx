@@ -16,6 +16,10 @@ function Router() {
     <Switch>
       <ProtectedRoute path="/" component={UserDashboard} />
       <ProtectedRoute path="/admin" component={AdminDashboard} adminOnly />
+      <ProtectedRoute path="/admin/users" component={AdminDashboard} adminOnly />
+      <ProtectedRoute path="/admin/content" component={AdminDashboard} adminOnly />
+      <ProtectedRoute path="/admin/analytics" component={AdminDashboard} adminOnly />
+      <ProtectedRoute path="/admin/settings" component={AdminDashboard} adminOnly />
       <Route path="/auth" component={AuthPage} />
       <Route path="/features" component={FeaturesPage} />
       <Route path="/resources" component={ResourcesPage} />

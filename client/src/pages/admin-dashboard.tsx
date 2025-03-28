@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { 
   User, Content, TrainRoute, BusRoute, 
@@ -28,8 +29,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+  const [location, setLocation] = useLocation();
   const [isAdminView, setIsAdminView] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
+  
+  // Set active tab based on URL
+  useEffect(() => {
+    if (location.includes('/admin/users')) {
+      setActiveTab('users');
+    } else if (location.includes('/admin/content')) {
+      setActiveTab('content');
+    } else if (location.includes('/admin/analytics')) {
+      setActiveTab('analytics');
+    } else if (location.includes('/admin/settings')) {
+      setActiveTab('settings');
+    } else {
+      setActiveTab('overview');
+    }
+  }, [location]);
   
   // Toggle admin view when button is clicked
   const toggleAdminView = () => {
@@ -39,9 +56,9 @@ export default function AdminDashboard() {
   // Redirect to user dashboard if not in admin view
   useEffect(() => {
     if (!isAdminView) {
-      window.location.href = "/";
+      setLocation("/");
     }
-  }, [isAdminView]);
+  }, [isAdminView, setLocation]);
   
   // Fetch admin data - users
   const { 
