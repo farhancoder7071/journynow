@@ -71,7 +71,9 @@ export class MemStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    for (const user of this.users.values()) {
+    // Convert values iterator to array to avoid iteration issues
+    const userArray = Array.from(this.users.values());
+    for (const user of userArray) {
       if (user.username === username) {
         return user;
       }
@@ -81,7 +83,16 @@ export class MemStorage implements IStorage {
 
   async createUser(userData: InsertUser): Promise<User> {
     const id = this.userIdCounter++;
-    const user: User = { ...userData, id };
+    
+    // Create a valid User object
+    const user = {
+      id,
+      username: userData.username,
+      password: userData.password,
+      fullName: userData.fullName ?? null,  // Can be null in the schema
+      role: userData.role ?? "user"         // Defaults to "user" if not provided
+    } as User;
+    
     this.users.set(id, user);
     return user;
   }
@@ -92,7 +103,8 @@ export class MemStorage implements IStorage {
 
   async getActivitiesByUserId(userId: number): Promise<Activity[]> {
     const userActivities: Activity[] = [];
-    for (const activity of this.activities.values()) {
+    const activitiesArray = Array.from(this.activities.values());
+    for (const activity of activitiesArray) {
       if (activity.userId === userId) {
         userActivities.push(activity);
       }
@@ -109,7 +121,8 @@ export class MemStorage implements IStorage {
 
   async getDocumentsByUserId(userId: number): Promise<Document[]> {
     const userDocuments: Document[] = [];
-    for (const document of this.documents.values()) {
+    const documentsArray = Array.from(this.documents.values());
+    for (const document of documentsArray) {
       if (document.userId === userId) {
         userDocuments.push(document);
       }
