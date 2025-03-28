@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import { JourneyNowLogo } from "@/components/layout/logo";
 
 // Login schema
 const loginSchema = z.object({
@@ -96,7 +97,7 @@ export default function AuthPage() {
   if (loginMutation.isPending || registerMutation.isPending) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-10 w-10 animate-spin text-[#1976D2]" />
+        <Loader2 className="h-10 w-10 animate-spin text-[#6366F1]" />
       </div>
     );
   }
@@ -112,10 +113,8 @@ export default function AuthPage() {
       <div className="w-full md:w-1/2 flex flex-col justify-center p-8 bg-[#F5F5F5]">
         <div className="mx-auto w-full max-w-md">
           <div className="flex justify-center mb-8">
-            <svg className="h-10 w-10 text-[#1976D2]" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"></path>
-            </svg>
-            <h1 className="ml-2 text-2xl font-bold text-[#212121]">AppName</h1>
+            <JourneyNowLogo size={40} />
+            <h1 className="ml-2 text-2xl font-bold text-[#212121]">JourneyNow</h1>
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -175,14 +174,14 @@ export default function AuthPage() {
                           )}
                         />
                         
-                        <Button variant="link" className="text-sm text-[#1976D2] hover:text-[#1565C0] p-0">
+                        <Button variant="link" className="text-sm text-[#6366F1] hover:text-[#4338CA] p-0">
                           Forgot password?
                         </Button>
                       </div>
                       
                       <Button 
                         type="submit" 
-                        className="w-full bg-[#1976D2] hover:bg-[#1565C0]"
+                        className="w-full bg-[#6366F1] hover:bg-[#4338CA]"
                         disabled={loginMutation.isPending}
                       >
                         {loginMutation.isPending ? (
@@ -195,7 +194,7 @@ export default function AuthPage() {
                         <Button
                           type="button"
                           variant="link"
-                          className="text-sm text-gray-600 hover:text-[#1976D2]"
+                          className="text-sm text-gray-600 hover:text-[#6366F1]"
                           onClick={() => {
                             loginForm.setValue("username", "admin");
                             loginForm.setValue("password", "admin123");
@@ -273,7 +272,7 @@ export default function AuthPage() {
                       
                       <Button 
                         type="submit" 
-                        className="w-full bg-[#1976D2] hover:bg-[#1565C0]"
+                        className="w-full bg-[#6366F1] hover:bg-[#4338CA]"
                         disabled={registerMutation.isPending}
                       >
                         {registerMutation.isPending ? (
@@ -291,36 +290,36 @@ export default function AuthPage() {
       </div>
       
       {/* Hero Section */}
-      <div className="hidden md:block md:w-1/2 bg-[#1976D2] p-8 text-white">
+      <div className="hidden md:block md:w-1/2 bg-[#6366F1] p-8 text-white">
         <div className="flex flex-col justify-center h-full max-w-md mx-auto">
-          <h1 className="text-4xl font-bold mb-6">Welcome to AppName</h1>
+          <h1 className="text-4xl font-bold mb-6">Welcome to JourneyNow</h1>
           <p className="text-xl mb-8">
-            Your secure portal for managing content with both user and admin access.
+            Your complete transit companion for planning trips, checking schedules, and getting real-time updates.
           </p>
           <ul className="space-y-4">
             <li className="flex items-center">
               <svg className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Dashboard with personalized content
+              Real-time train and bus schedules
             </li>
             <li className="flex items-center">
               <svg className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Role-based access control
+              Crowd reporting for better transit planning
             </li>
             <li className="flex items-center">
               <svg className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Secure document management
+              Personalized transit alerts and notifications
             </li>
             <li className="flex items-center">
               <svg className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Powerful admin tools
+              Comprehensive journey planning tools
             </li>
           </ul>
         </div>
