@@ -8,8 +8,10 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { AdminSidebar } from "@/components/layout/sidebar";
 import { StatsCard } from "@/components/dashboard/stats-card";
-import { UsersTable } from "@/components/admin/users-table";
-import { ContentGrid } from "@/components/admin/content-grid";
+import { UsersManagement } from "@/components/admin/users-management";
+import { ContentManagement } from "@/components/admin/content-management";
+import { AnalyticsDashboard } from "@/components/admin/analytics-dashboard";
+import { SettingsManagement } from "@/components/admin/settings-management";
 import { TrainRoutes } from "@/components/admin/train-routes";
 import { BusRoutes } from "@/components/admin/bus-routes";
 import { CrowdReports } from "@/components/admin/crowd-reports";
@@ -17,7 +19,8 @@ import { AdSettings } from "@/components/admin/ad-settings";
 import { useAuth } from "@/hooks/use-auth";
 import { 
   Users, UserPlus, FolderOpen, Laptop, Train, 
-  Bus, Users2, BellRing, LineChart 
+  Bus, Users2, BellRing, LineChart, Settings, 
+  BarChart3, Briefcase
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -121,6 +124,10 @@ export default function AdminDashboard() {
                 <LineChart className="h-4 w-4 mr-2" />
                 Overview
               </TabsTrigger>
+              <TabsTrigger value="analytics" className="data-[state=active]:bg-[#1976D2]">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Analytics
+              </TabsTrigger>
               <TabsTrigger value="users" className="data-[state=active]:bg-[#1976D2]">
                 <Users className="h-4 w-4 mr-2" />
                 Users
@@ -144,6 +151,10 @@ export default function AdminDashboard() {
               <TabsTrigger value="ads" className="data-[state=active]:bg-[#1976D2]">
                 <Laptop className="h-4 w-4 mr-2" />
                 Ad Settings
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="data-[state=active]:bg-[#1976D2]">
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
               </TabsTrigger>
             </TabsList>
             
@@ -207,33 +218,87 @@ export default function AdminDashboard() {
                 />
               </div>
               
-              {/* Recent Users Table */}
-              <div className="mb-6">
-                <UsersTable 
-                  users={users} 
-                  isLoading={usersLoading} 
-                />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-[#253349] rounded-xl p-6">
+                  <h3 className="text-lg font-medium mb-4">Recent User Activity</h3>
+                  <div className="space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex items-center gap-4 border-b border-gray-700 pb-4">
+                        <div className="h-10 w-10 rounded-full bg-[#334155] flex items-center justify-center">
+                          <Users className="h-5 w-5 text-[#FF4081]" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">User {users[i]?.username || 'Anonymous'}</p>
+                          <p className="text-xs text-gray-400">
+                            {i === 1 ? 'Submitted crowd report' : i === 2 ? 'Logged in' : 'Updated profile'}
+                          </p>
+                        </div>
+                        <div className="ml-auto text-right">
+                          <p className="text-xs text-gray-400">{i * 10} minutes ago</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="bg-[#253349] rounded-xl p-6">
+                  <h3 className="text-lg font-medium mb-4">System Status</h3>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <div className="h-3 w-3 rounded-full bg-green-500 mr-2"></div>
+                        <span>Database Connection</span>
+                      </div>
+                      <span className="text-green-500 text-sm">Active</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <div className="h-3 w-3 rounded-full bg-green-500 mr-2"></div>
+                        <span>API Services</span>
+                      </div>
+                      <span className="text-green-500 text-sm">Operational</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <div className="h-3 w-3 rounded-full bg-yellow-500 mr-2"></div>
+                        <span>Email Service</span>
+                      </div>
+                      <span className="text-yellow-500 text-sm">Partially Degraded</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <div className="h-3 w-3 rounded-full bg-green-500 mr-2"></div>
+                        <span>Storage</span>
+                      </div>
+                      <span className="text-green-500 text-sm">Active</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              
-              {/* Content Grid */}
-              <ContentGrid 
-                contents={contents} 
-                isLoading={contentsLoading} 
-              />
+            </TabsContent>
+            
+            <TabsContent value="analytics">
+              <div className="bg-white text-gray-900 p-6 rounded-lg shadow">
+                <AnalyticsDashboard />
+              </div>
             </TabsContent>
             
             <TabsContent value="users">
-              <UsersTable 
-                users={users} 
-                isLoading={usersLoading} 
-              />
+              <div className="bg-white text-gray-900 p-6 rounded-lg shadow">
+                <UsersManagement />
+              </div>
             </TabsContent>
             
             <TabsContent value="content">
-              <ContentGrid 
-                contents={contents} 
-                isLoading={contentsLoading} 
-              />
+              <div className="bg-white text-gray-900 p-6 rounded-lg shadow">
+                <ContentManagement />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="settings">
+              <div className="bg-white text-gray-900 p-6 rounded-lg shadow">
+                <SettingsManagement />
+              </div>
             </TabsContent>
             
             <TabsContent value="trains">
