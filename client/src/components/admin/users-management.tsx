@@ -227,7 +227,7 @@ export function UsersManagement() {
     editForm.reset({
       username: user.username,
       fullName: user.fullName || "",
-      role: user.role || "user",
+      role: (user.role as "user" | "admin") || "user",
     });
     setIsEditDialogOpen(true);
   };
