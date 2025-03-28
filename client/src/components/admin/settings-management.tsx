@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -204,27 +204,97 @@ export function SettingsManagement() {
     },
   });
 
+  // Load settings when component mounts
+  const { data: generalSettings } = useQuery({
+    queryKey: ['/api/admin/app-settings/general'],
+    enabled: activeTab === "general"
+  });
+  
+  const { data: emailSettings } = useQuery({
+    queryKey: ['/api/admin/app-settings/email'],
+    enabled: activeTab === "email"
+  });
+  
+  const { data: notificationSettings } = useQuery({
+    queryKey: ['/api/admin/app-settings/notifications'],
+    enabled: activeTab === "notifications"
+  });
+  
+  const { data: securitySettings } = useQuery({
+    queryKey: ['/api/admin/app-settings/security'],
+    enabled: activeTab === "security"
+  });
+  
+  const { data: storageSettings } = useQuery({
+    queryKey: ['/api/admin/app-settings/storage'],
+    enabled: activeTab === "storage"
+  });
+  
+  // Settings update mutation
+  const updateSettingMutation = useMutation({
+    mutationFn: async ({ category, key, value }: { category: string; key: string; value: string }) => {
+      const res = await apiRequest('POST', '/api/admin/app-settings', {
+        category,
+        key,
+        value
+      });
+      return await res.json();
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/app-settings/${variables.category}`] });
+      toast({
+        title: "Setting saved",
+        description: `${variables.category.charAt(0).toUpperCase() + variables.category.slice(1)} settings have been updated successfully.`,
+        variant: "default",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to save settings",
+        description: error.message || "An error occurred while saving settings. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Delete setting mutation
+  const deleteSettingMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest('DELETE', `/api/admin/app-settings/${id}`);
+    },
+    onSuccess: (_, id) => {
+      toast({
+        title: "Setting deleted",
+        description: "The setting has been deleted successfully.",
+        variant: "default",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to delete setting",
+        description: error.message || "An error occurred while deleting the setting. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
   // Handle save settings
   const handleSaveSettings = async (tab: string, data: any) => {
     setIsLoading(true);
     try {
-      // In a real app, you would send the data to the server
-      // await apiRequest('PUT', `/api/admin/settings/${tab}`, data);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: "Settings saved",
-        description: `${tab.charAt(0).toUpperCase() + tab.slice(1)} settings have been updated successfully.`,
-        variant: "default",
+      // Create an array of promises for each setting update
+      const updatePromises = Object.entries(data).map(([key, value]) => {
+        return updateSettingMutation.mutateAsync({
+          category: tab,
+          key,
+          value: typeof value === 'boolean' ? String(value) : String(value)
+        });
       });
+      
+      // Wait for all updates to complete
+      await Promise.all(updatePromises);
     } catch (error) {
-      toast({
-        title: "Failed to save settings",
-        description: "An error occurred while saving settings. Please try again.",
-        variant: "destructive",
-      });
+      // Error handling is handled by the mutation
     } finally {
       setIsLoading(false);
     }
@@ -234,13 +304,7 @@ export function SettingsManagement() {
   const handleResetSettings = async () => {
     setIsLoading(true);
     try {
-      // In a real app, you would reset the settings on the server
-      // await apiRequest('POST', '/api/admin/settings/reset', {});
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Reset forms
+      // Reset forms to their default values
       generalForm.reset();
       emailForm.reset();
       notificationForm.reset();
@@ -251,7 +315,7 @@ export function SettingsManagement() {
       
       toast({
         title: "Settings reset",
-        description: "All settings have been reset to their default values.",
+        description: "All settings have been reset to their default values in the form. Click Save to apply these changes.",
         variant: "default",
       });
     } catch (error) {

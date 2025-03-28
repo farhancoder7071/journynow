@@ -1,11 +1,11 @@
 import { 
   users, activities, documents, contents, 
-  trainRoutes, busRoutes, crowdReports, adSettings 
+  trainRoutes, busRoutes, crowdReports, adSettings, appSettings
 } from "@shared/schema";
 import type { 
   User, InsertUser, Activity, Document, Content, 
-  TrainRoute, BusRoute, CrowdReport, AdSetting,
-  InsertTrainRoute, InsertBusRoute, InsertCrowdReport, InsertAdSetting
+  TrainRoute, BusRoute, CrowdReport, AdSetting, AppSetting,
+  InsertTrainRoute, InsertBusRoute, InsertCrowdReport, InsertAdSetting, InsertAppSetting
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -59,6 +59,12 @@ export interface IStorage {
   createAdSetting(setting: Omit<InsertAdSetting, 'id'>): Promise<AdSetting>;
   updateAdSetting(id: number, setting: Partial<Omit<AdSetting, 'id'>>): Promise<AdSetting | undefined>;
   
+  // App settings operations
+  getAppSettingsByCategory(category: string): Promise<AppSetting[]>;
+  getAppSetting(category: string, key: string): Promise<AppSetting | undefined>;
+  upsertAppSetting(setting: InsertAppSetting): Promise<AppSetting>;
+  deleteAppSetting(id: number): Promise<boolean>;
+  
   // Session store
   sessionStore: any;
 }
@@ -72,6 +78,7 @@ export class MemStorage implements IStorage {
   private busRoutes: Map<number, BusRoute>;
   private crowdReports: Map<number, CrowdReport>;
   private adSettings: Map<number, AdSetting>;
+  private appSettings: Map<number, AppSetting>;
   
   private userIdCounter: number;
   private activityIdCounter: number;
@@ -81,6 +88,7 @@ export class MemStorage implements IStorage {
   private busRouteIdCounter: number;
   private crowdReportIdCounter: number;
   private adSettingIdCounter: number;
+  private appSettingIdCounter: number;
   
   sessionStore: any;
 
@@ -93,6 +101,7 @@ export class MemStorage implements IStorage {
     this.busRoutes = new Map();
     this.crowdReports = new Map();
     this.adSettings = new Map();
+    this.appSettings = new Map();
     
     this.userIdCounter = 1;
     this.activityIdCounter = 1;
@@ -102,6 +111,7 @@ export class MemStorage implements IStorage {
     this.busRouteIdCounter = 1;
     this.crowdReportIdCounter = 1;
     this.adSettingIdCounter = 1;
+    this.appSettingIdCounter = 1;
     
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000 // 24 hours
@@ -151,6 +161,22 @@ export class MemStorage implements IStorage {
       updatedAt: new Date().toISOString()
     });
     this.busRouteIdCounter = 2;
+    
+    // Initialize with some sample app settings
+    const initialSettings = [
+      { id: 1, category: 'general', key: 'siteName', value: 'Transit App', updatedBy: 1, updatedAt: new Date().toISOString() },
+      { id: 2, category: 'general', key: 'siteDescription', value: 'Real-time transit information and crowd reporting platform', updatedBy: 1, updatedAt: new Date().toISOString() },
+      { id: 3, category: 'general', key: 'primaryColor', value: '#1976D2', updatedBy: 1, updatedAt: new Date().toISOString() },
+      { id: 4, category: 'email', key: 'smtpServer', value: 'smtp.example.com', updatedBy: 1, updatedAt: new Date().toISOString() },
+      { id: 5, category: 'email', key: 'smtpPort', value: '587', updatedBy: 1, updatedAt: new Date().toISOString() },
+      { id: 6, category: 'security', key: 'passwordMinLength', value: '8', updatedBy: 1, updatedAt: new Date().toISOString() }
+    ];
+    
+    initialSettings.forEach(setting => {
+      this.appSettings.set(setting.id, setting as AppSetting);
+    });
+    
+    this.appSettingIdCounter = initialSettings.length + 1;
   }
 
   // User operations
@@ -429,6 +455,54 @@ export class MemStorage implements IStorage {
     
     this.adSettings.set(id, updatedSetting);
     return updatedSetting;
+  }
+  
+  // App settings operations
+  async getAppSettingsByCategory(category: string): Promise<AppSetting[]> {
+    const settingsArray = Array.from(this.appSettings.values());
+    return settingsArray.filter(setting => setting.category === category);
+  }
+  
+  async getAppSetting(category: string, key: string): Promise<AppSetting | undefined> {
+    const settingsArray = Array.from(this.appSettings.values());
+    return settingsArray.find(setting => setting.category === category && setting.key === key);
+  }
+  
+  async upsertAppSetting(settingData: InsertAppSetting): Promise<AppSetting> {
+    // Check if a setting with this category and key already exists
+    const existingSetting = await this.getAppSetting(settingData.category, settingData.key);
+    
+    if (existingSetting) {
+      // Update existing setting
+      const updatedSetting: AppSetting = {
+        ...existingSetting,
+        value: settingData.value,
+        updatedBy: settingData.updatedBy || null,
+        updatedAt: new Date().toISOString()
+      };
+      
+      this.appSettings.set(existingSetting.id, updatedSetting);
+      return updatedSetting;
+    } else {
+      // Create new setting
+      const id = this.appSettingIdCounter++;
+      
+      const appSetting: AppSetting = {
+        id,
+        category: settingData.category,
+        key: settingData.key,
+        value: settingData.value,
+        updatedBy: settingData.updatedBy || null,
+        updatedAt: new Date().toISOString()
+      };
+      
+      this.appSettings.set(id, appSetting);
+      return appSetting;
+    }
+  }
+  
+  async deleteAppSetting(id: number): Promise<boolean> {
+    return this.appSettings.delete(id);
   }
 }
 

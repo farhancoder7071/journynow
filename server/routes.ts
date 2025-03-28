@@ -7,7 +7,8 @@ import {
   insertTrainRouteSchema, 
   insertBusRouteSchema, 
   insertCrowdReportSchema, 
-  insertAdSettingSchema 
+  insertAdSettingSchema,
+  insertAppSettingSchema
 } from "@shared/schema";
 
 // Middleware to check if user is authenticated
@@ -752,6 +753,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     });
   }
+
+  // App settings management (admin only)
+  // Get settings by category
+  app.get("/api/admin/app-settings/:category", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const category = req.params.category;
+      const settings = await storage.getAppSettingsByCategory(category);
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Get a specific setting by category and key
+  app.get("/api/admin/app-settings/:category/:key", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { category, key } = req.params;
+      const setting = await storage.getAppSetting(category, key);
+      
+      if (!setting) {
+        return res.status(404).json({ message: "Setting not found" });
+      }
+      
+      res.json(setting);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Create or update a setting
+  app.post("/api/admin/app-settings", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const validatedData = insertAppSettingSchema.parse({
+        ...req.body,
+        updatedBy: req.user.id,
+      });
+      
+      const setting = await storage.upsertAppSetting(validatedData);
+      
+      // Create activity record
+      await storage.createActivity({
+        userId: req.user.id,
+        action: "Updated system setting",
+        category: "System Settings",
+        timestamp: new Date().toISOString(),
+        status: "Completed",
+      });
+      
+      res.status(201).json(setting);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Delete a setting
+  app.delete("/api/admin/app-settings/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const success = await storage.deleteAppSetting(id);
+      if (!success) {
+        return res.status(404).json({ message: "Setting not found" });
+      }
+      
+      // Create activity record
+      await storage.createActivity({
+        userId: req.user.id,
+        action: "Deleted system setting",
+        category: "System Settings",
+        timestamp: new Date().toISOString(),
+        status: "Completed",
+      });
+      
+      res.status(204).end();
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

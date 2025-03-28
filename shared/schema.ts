@@ -125,3 +125,23 @@ export type InsertTrainRoute = z.infer<typeof insertTrainRouteSchema>;
 export type InsertBusRoute = z.infer<typeof insertBusRouteSchema>;
 export type InsertCrowdReport = z.infer<typeof insertCrowdReportSchema>;
 export type InsertAdSetting = z.infer<typeof insertAdSettingSchema>;
+
+// App settings schemas
+export const appSettings = pgTable("app_settings", {
+  id: serial("id").primaryKey(),
+  category: text("category").notNull(),
+  key: text("key").notNull(),
+  value: text("value").notNull(),
+  updatedBy: integer("updated_by").default(null),
+  updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
+});
+
+export const insertAppSettingSchema = createInsertSchema(appSettings).pick({
+  category: true,
+  key: true,
+  value: true,
+  updatedBy: true
+});
+
+export type AppSetting = typeof appSettings.$inferSelect;
+export type InsertAppSetting = z.infer<typeof insertAppSettingSchema>;
