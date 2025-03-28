@@ -1,10 +1,9 @@
-{pkgs}: {
+{ pkgs }: {
   deps = [
-    pkgs.nodejs
-    pkgs.ocamlPackages.json-data-encoding-bson
-    pkgs.jetbrains-mono
-    pkgs.haskellPackages.json-assertions
-    pkgs.jansson
-    pkgs.haskellPackages.jason
+    pkgs.nodejs_20  # Node.js 20 + npm
+    pkgs.yarn        # Yarn package manager
+    pkgs.curl        # Curl for downloading
+    pkgs.git         # Git support
+    pkgs.unzip       # Unzip tool
   ];
 }
