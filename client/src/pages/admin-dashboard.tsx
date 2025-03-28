@@ -8,14 +8,16 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { AdminSidebar } from "@/components/layout/sidebar";
 import { StatsCard } from "@/components/dashboard/stats-card";
-import { UsersManagement } from "@/components/admin/users-management";
-import { ContentManagement } from "@/components/admin/content-management";
-import { AnalyticsDashboard } from "@/components/admin/analytics-dashboard";
-import { SettingsManagement } from "@/components/admin/settings-management";
+import { UsersTable } from "@/components/admin/users-table";
+import { ContentGrid } from "@/components/admin/content-grid";
 import { TrainRoutes } from "@/components/admin/train-routes";
 import { BusRoutes } from "@/components/admin/bus-routes";
 import { CrowdReports } from "@/components/admin/crowd-reports";
 import { AdSettings } from "@/components/admin/ad-settings";
+import { UsersManagement } from "@/components/admin/users-management";
+import { ContentManagement } from "@/components/admin/content-management";
+import { AnalyticsDashboard } from "@/components/admin/analytics-dashboard";
+import { SettingsManagement } from "@/components/admin/settings-management";
 import { useAuth } from "@/hooks/use-auth";
 import { 
   Users, UserPlus, FolderOpen, Laptop, Train, 

@@ -79,9 +79,10 @@ import {
 // Define form schemas
 const userFormSchema = z.object({
   username: z.string().min(3, { message: "Username must be at least 3 characters" }),
-  fullName: z.string().min(3, { message: "Full name is required" }),
-  email: z.string().email({ message: "Invalid email address" }),
-  role: z.string().min(1, { message: "Role is required" }),
+  fullName: z.string().min(2, { message: "Full name is required" }).optional(),
+  role: z.enum(["user", "admin"], { 
+    required_error: "Role is required" 
+  }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }).optional(),
 });
 
@@ -110,8 +111,7 @@ export function UsersManagement() {
   // Filter users based on search query
   const filteredUsers = users.filter((user: User) => 
     user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (user.fullName && user.fullName.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (user.email && user.email.toLowerCase().includes(searchQuery.toLowerCase()))
+    (user.fullName && user.fullName.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   // Add user mutation
@@ -191,7 +191,6 @@ export function UsersManagement() {
     defaultValues: {
       username: "",
       fullName: "",
-      email: "",
       role: "user",
       password: "",
     },
@@ -203,7 +202,6 @@ export function UsersManagement() {
     defaultValues: {
       username: "",
       fullName: "",
-      email: "",
       role: "user",
     },
   });
@@ -229,7 +227,6 @@ export function UsersManagement() {
     editForm.reset({
       username: user.username,
       fullName: user.fullName || "",
-      email: user.email || "",
       role: user.role || "user",
     });
     setIsEditDialogOpen(true);
@@ -304,23 +301,21 @@ export function UsersManagement() {
                 <TableHead>ID</TableHead>
                 <TableHead>Username</TableHead>
                 <TableHead>Full Name</TableHead>
-                <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoadingUsers ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-4">
+                  <TableCell colSpan={5} className="text-center py-4">
                     <Loader2 className="h-6 w-6 animate-spin mx-auto text-blue-500" />
                     <p className="mt-2 text-sm text-gray-500">Loading users...</p>
                   </TableCell>
                 </TableRow>
               ) : filteredUsers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-4">
+                  <TableCell colSpan={5} className="text-center py-4">
                     <p className="text-gray-500">No users found.</p>
                   </TableCell>
                 </TableRow>
@@ -330,7 +325,6 @@ export function UsersManagement() {
                     <TableCell className="font-medium">{user.id}</TableCell>
                     <TableCell>{user.username}</TableCell>
                     <TableCell>{user.fullName || '-'}</TableCell>
-                    <TableCell>{user.email || '-'}</TableCell>
                     <TableCell>
                       <Badge className={user.role === 'admin' ? 'bg-red-500' : 'bg-blue-500'}>
                         {user.role === 'admin' ? (
@@ -339,11 +333,6 @@ export function UsersManagement() {
                           <UserCog className="h-3 w-3 mr-1" />
                         )}
                         {user.role || 'user'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={user.isActive ? 'default' : 'secondary'} className={user.isActive ? 'bg-green-500' : 'bg-gray-500'}>
-                        {user.isActive ? 'Active' : 'Inactive'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -416,19 +405,7 @@ export function UsersManagement() {
                 )}
               />
               
-              <FormField
-                control={addForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="john.doe@example.com" type="email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
               
               <FormField
                 control={addForm.control}
@@ -533,19 +510,7 @@ export function UsersManagement() {
                 )}
               />
               
-              <FormField
-                control={editForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="john.doe@example.com" type="email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
               
               <FormField
                 control={editForm.control}
