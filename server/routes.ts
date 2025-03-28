@@ -3,6 +3,28 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, hashPassword } from "./auth";
 import { z } from "zod";
+import { 
+  insertTrainRouteSchema, 
+  insertBusRouteSchema, 
+  insertCrowdReportSchema, 
+  insertAdSettingSchema 
+} from "@shared/schema";
+
+// Middleware to check if user is authenticated
+const isAuthenticated = (req, res, next) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+  next();
+};
+
+// Middleware to check if user is an admin
+const isAdmin = (req, res, next) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Not authorized" });
+  }
+  next();
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
@@ -10,11 +32,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // API Routes
   // User activities
-  app.get("/api/activities", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-    
+  app.get("/api/activities", isAuthenticated, async (req, res) => {
     try {
       const activities = await storage.getActivitiesByUserId(req.user.id);
       res.json(activities);
@@ -24,11 +42,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User documents
-  app.get("/api/documents", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-    
+  app.get("/api/documents", isAuthenticated, async (req, res) => {
     try {
       const documents = await storage.getDocumentsByUserId(req.user.id);
       res.json(documents);
@@ -37,17 +51,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin routes
+  // Admin routes for user management
   // Get all users (admin only)
-  app.get("/api/admin/users", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-    
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Not authorized" });
-    }
-    
+  app.get("/api/admin/users", isAuthenticated, isAdmin, async (req, res) => {
     try {
       const users = await storage.getUsers();
       // Don't return passwords
@@ -58,16 +64,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all content (admin only)
-  app.get("/api/admin/contents", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-    
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Not authorized" });
-    }
-    
+  // Content management (admin only)
+  // Get all content
+  app.get("/api/admin/contents", isAuthenticated, isAdmin, async (req, res) => {
     try {
       const contents = await storage.getContents();
       res.json(contents);
@@ -76,16 +75,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Create new content (admin only)
-  app.post("/api/admin/contents", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-    
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Not authorized" });
-    }
-    
+  // Create new content
+  app.post("/api/admin/contents", isAuthenticated, isAdmin, async (req, res) => {
     try {
       const contentData = {
         ...req.body,
@@ -95,6 +86,380 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const content = await storage.createContent(contentData);
       res.status(201).json(content);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  });
+
+  // Train route management (admin only)
+  // Get all train routes
+  app.get("/api/admin/train-routes", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const routes = await storage.getTrainRoutes();
+      res.json(routes);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Get a single train route
+  app.get("/api/admin/train-routes/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const route = await storage.getTrainRoute(id);
+      if (!route) {
+        return res.status(404).json({ message: "Train route not found" });
+      }
+      
+      res.json(route);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Create a new train route
+  app.post("/api/admin/train-routes", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const validatedData = insertTrainRouteSchema.parse(req.body);
+      
+      const newRoute = await storage.createTrainRoute(validatedData);
+      
+      // Create activity for the admin user
+      await storage.createActivity({
+        userId: req.user.id,
+        action: "Created train route",
+        category: "Train Management",
+        timestamp: new Date().toISOString(),
+        status: "Completed",
+      });
+      
+      res.status(201).json(newRoute);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  });
+
+  // Update a train route
+  app.put("/api/admin/train-routes/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const route = await storage.getTrainRoute(id);
+      if (!route) {
+        return res.status(404).json({ message: "Train route not found" });
+      }
+      
+      const updatedRoute = await storage.updateTrainRoute(id, req.body);
+      
+      // Create activity for the admin user
+      await storage.createActivity({
+        userId: req.user.id,
+        action: "Updated train route",
+        category: "Train Management",
+        timestamp: new Date().toISOString(),
+        status: "Completed",
+      });
+      
+      res.json(updatedRoute);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  });
+
+  // Delete a train route
+  app.delete("/api/admin/train-routes/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const success = await storage.deleteTrainRoute(id);
+      if (!success) {
+        return res.status(404).json({ message: "Train route not found" });
+      }
+      
+      // Create activity for the admin user
+      await storage.createActivity({
+        userId: req.user.id,
+        action: "Deleted train route",
+        category: "Train Management",
+        timestamp: new Date().toISOString(),
+        status: "Completed",
+      });
+      
+      res.status(204).end();
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Bus route management (admin only)
+  // Get all bus routes
+  app.get("/api/admin/bus-routes", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const routes = await storage.getBusRoutes();
+      res.json(routes);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Get a single bus route
+  app.get("/api/admin/bus-routes/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const route = await storage.getBusRoute(id);
+      if (!route) {
+        return res.status(404).json({ message: "Bus route not found" });
+      }
+      
+      res.json(route);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Create a new bus route
+  app.post("/api/admin/bus-routes", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const validatedData = insertBusRouteSchema.parse(req.body);
+      
+      const newRoute = await storage.createBusRoute(validatedData);
+      
+      // Create activity for the admin user
+      await storage.createActivity({
+        userId: req.user.id,
+        action: "Created bus route",
+        category: "Bus Management",
+        timestamp: new Date().toISOString(),
+        status: "Completed",
+      });
+      
+      res.status(201).json(newRoute);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  });
+
+  // Update a bus route
+  app.put("/api/admin/bus-routes/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const route = await storage.getBusRoute(id);
+      if (!route) {
+        return res.status(404).json({ message: "Bus route not found" });
+      }
+      
+      const updatedRoute = await storage.updateBusRoute(id, req.body);
+      
+      // Create activity for the admin user
+      await storage.createActivity({
+        userId: req.user.id,
+        action: "Updated bus route",
+        category: "Bus Management",
+        timestamp: new Date().toISOString(),
+        status: "Completed",
+      });
+      
+      res.json(updatedRoute);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  });
+
+  // Delete a bus route
+  app.delete("/api/admin/bus-routes/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const success = await storage.deleteBusRoute(id);
+      if (!success) {
+        return res.status(404).json({ message: "Bus route not found" });
+      }
+      
+      // Create activity for the admin user
+      await storage.createActivity({
+        userId: req.user.id,
+        action: "Deleted bus route",
+        category: "Bus Management",
+        timestamp: new Date().toISOString(),
+        status: "Completed",
+      });
+      
+      res.status(204).end();
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Crowd report management (admin and user)
+  // Get all crowd reports (admin only)
+  app.get("/api/admin/crowd-reports", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const reports = await storage.getCrowdReports();
+      res.json(reports);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Create a new crowd report (any authenticated user)
+  app.post("/api/crowd-reports", isAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertCrowdReportSchema.parse({
+        ...req.body,
+        userId: req.user.id,
+        timestamp: req.body.timestamp || new Date().toISOString(),
+      });
+      
+      const newReport = await storage.createCrowdReport(validatedData);
+      
+      // Create activity for the user
+      await storage.createActivity({
+        userId: req.user.id,
+        action: "Submitted crowd report",
+        category: "Crowd Management",
+        timestamp: new Date().toISOString(),
+        status: "Pending Approval",
+      });
+      
+      res.status(201).json(newReport);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  });
+
+  // Approve a crowd report (admin only)
+  app.put("/api/admin/crowd-reports/:id/approve", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const report = await storage.approveCrowdReport(id);
+      if (!report) {
+        return res.status(404).json({ message: "Crowd report not found" });
+      }
+      
+      // Create activity for the admin
+      await storage.createActivity({
+        userId: req.user.id,
+        action: "Approved crowd report",
+        category: "Crowd Management",
+        timestamp: new Date().toISOString(),
+        status: "Completed",
+      });
+      
+      res.json(report);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Get crowd reports by station name (any authenticated user)
+  app.get("/api/crowd-reports/station/:stationName", isAuthenticated, async (req, res) => {
+    try {
+      const stationName = req.params.stationName;
+      const reports = await storage.getCrowdReportsByStation(stationName);
+      
+      // Filter to only show approved reports to regular users
+      // Admin users can see all reports
+      const filteredReports = req.user.role === "admin" 
+        ? reports 
+        : reports.filter(report => report.isApproved);
+      
+      res.json(filteredReports);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Ad management (admin only)
+  // Get all ad settings
+  app.get("/api/admin/ad-settings", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const settings = await storage.getAdSettings();
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Create new ad setting
+  app.post("/api/admin/ad-settings", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const validatedData = insertAdSettingSchema.parse({
+        ...req.body,
+        updatedBy: req.user.id,
+        lastUpdated: new Date().toISOString(),
+      });
+      
+      const newSetting = await storage.createAdSetting(validatedData);
+      
+      // Create activity for the admin
+      await storage.createActivity({
+        userId: req.user.id,
+        action: "Created ad setting",
+        category: "Ad Management",
+        timestamp: new Date().toISOString(),
+        status: "Completed",
+      });
+      
+      res.status(201).json(newSetting);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  });
+
+  // Update ad setting
+  app.put("/api/admin/ad-settings/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const updatedData = {
+        ...req.body,
+        updatedBy: req.user.id,
+        lastUpdated: new Date().toISOString(),
+      };
+      
+      const setting = await storage.updateAdSetting(id, updatedData);
+      if (!setting) {
+        return res.status(404).json({ message: "Ad setting not found" });
+      }
+      
+      // Create activity for the admin
+      await storage.createActivity({
+        userId: req.user.id,
+        action: "Updated ad setting",
+        category: "Ad Management",
+        timestamp: new Date().toISOString(),
+        status: "Completed",
+      });
+      
+      res.json(setting);
     } catch (error) {
       res.status(400).json({ message: (error as Error).message });
     }
@@ -178,6 +543,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
             summary: "Updated employee handbook with new policies and guidelines...",
             views: 76,
             author: "Admin User",
+          });
+          
+          // Create crowd reports
+          await storage.createCrowdReport({
+            userId: admin.id,
+            stationName: "Mumbai Central",
+            crowdLevel: "high",
+            timestamp: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+            isApproved: true,
+            transportType: "train",
+            routeId: 1
+          });
+          
+          await storage.createCrowdReport({
+            userId: admin.id,
+            stationName: "Dadar",
+            crowdLevel: "medium",
+            timestamp: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
+            isApproved: true,
+            transportType: "bus",
+            routeId: 1
+          });
+          
+          // Create ad settings
+          await storage.createAdSetting({
+            adType: "banner",
+            isActive: true,
+            frequency: 5,
+            position: "bottom",
+            lastUpdated: new Date().toISOString(),
+            updatedBy: admin.id
+          });
+          
+          await storage.createAdSetting({
+            adType: "interstitial",
+            isActive: true,
+            frequency: 10,
+            position: "center",
+            lastUpdated: new Date().toISOString(),
+            updatedBy: admin.id
           });
           
           res.json({ message: "Demo data created successfully" });

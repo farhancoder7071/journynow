@@ -1,5 +1,12 @@
-import { users, activities, documents, contents } from "@shared/schema";
-import type { User, InsertUser, Activity, Document, Content } from "@shared/schema";
+import { 
+  users, activities, documents, contents, 
+  trainRoutes, busRoutes, crowdReports, adSettings 
+} from "@shared/schema";
+import type { 
+  User, InsertUser, Activity, Document, Content, 
+  TrainRoute, BusRoute, CrowdReport, AdSetting,
+  InsertTrainRoute, InsertBusRoute, InsertCrowdReport, InsertAdSetting
+} from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 
@@ -25,6 +32,33 @@ export interface IStorage {
   getContents(): Promise<Content[]>;
   createContent(content: Omit<Content, 'id'>): Promise<Content>;
   
+  // Train route operations
+  getTrainRoutes(): Promise<TrainRoute[]>;
+  getTrainRoute(id: number): Promise<TrainRoute | undefined>;
+  createTrainRoute(route: Omit<InsertTrainRoute, 'id'>): Promise<TrainRoute>;
+  updateTrainRoute(id: number, route: Partial<Omit<TrainRoute, 'id'>>): Promise<TrainRoute | undefined>;
+  deleteTrainRoute(id: number): Promise<boolean>;
+  
+  // Bus route operations
+  getBusRoutes(): Promise<BusRoute[]>;
+  getBusRoute(id: number): Promise<BusRoute | undefined>;
+  createBusRoute(route: Omit<InsertBusRoute, 'id'>): Promise<BusRoute>;
+  updateBusRoute(id: number, route: Partial<Omit<BusRoute, 'id'>>): Promise<BusRoute | undefined>;
+  deleteBusRoute(id: number): Promise<boolean>;
+  
+  // Crowd report operations
+  getCrowdReports(): Promise<CrowdReport[]>;
+  getCrowdReportsByUserId(userId: number): Promise<CrowdReport[]>;
+  getCrowdReportsByStation(stationName: string): Promise<CrowdReport[]>;
+  createCrowdReport(report: Omit<InsertCrowdReport, 'id'>): Promise<CrowdReport>;
+  approveCrowdReport(id: number): Promise<CrowdReport | undefined>;
+  
+  // Ad settings operations
+  getAdSettings(): Promise<AdSetting[]>;
+  getAdSetting(id: number): Promise<AdSetting | undefined>;
+  createAdSetting(setting: Omit<InsertAdSetting, 'id'>): Promise<AdSetting>;
+  updateAdSetting(id: number, setting: Partial<Omit<AdSetting, 'id'>>): Promise<AdSetting | undefined>;
+  
   // Session store
   sessionStore: any;
 }
@@ -34,10 +68,20 @@ export class MemStorage implements IStorage {
   private activities: Map<number, Activity>;
   private documents: Map<number, Document>;
   private contents: Map<number, Content>;
+  private trainRoutes: Map<number, TrainRoute>;
+  private busRoutes: Map<number, BusRoute>;
+  private crowdReports: Map<number, CrowdReport>;
+  private adSettings: Map<number, AdSetting>;
+  
   private userIdCounter: number;
   private activityIdCounter: number;
   private documentIdCounter: number;
   private contentIdCounter: number;
+  private trainRouteIdCounter: number;
+  private busRouteIdCounter: number;
+  private crowdReportIdCounter: number;
+  private adSettingIdCounter: number;
+  
   sessionStore: any;
 
   constructor() {
@@ -45,11 +89,19 @@ export class MemStorage implements IStorage {
     this.activities = new Map();
     this.documents = new Map();
     this.contents = new Map();
+    this.trainRoutes = new Map();
+    this.busRoutes = new Map();
+    this.crowdReports = new Map();
+    this.adSettings = new Map();
     
     this.userIdCounter = 1;
     this.activityIdCounter = 1;
     this.documentIdCounter = 1;
     this.contentIdCounter = 1;
+    this.trainRouteIdCounter = 1;
+    this.busRouteIdCounter = 1;
+    this.crowdReportIdCounter = 1;
+    this.adSettingIdCounter = 1;
     
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000 // 24 hours
@@ -64,8 +116,44 @@ export class MemStorage implements IStorage {
       role: "admin"
     });
     this.userIdCounter = 2;
+    
+    // Initialize with some sample train route data
+    this.trainRoutes.set(1, {
+      id: 1,
+      routeName: "Central Line",
+      sourceStation: "Mumbai Central",
+      destinationStation: "Thane",
+      departureTime: "06:00",
+      arrivalTime: "07:15",
+      status: "on-time",
+      trainNumber: "MUM-001",
+      trainType: "local",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    this.trainRouteIdCounter = 2;
+    
+    // Initialize with some sample bus route data
+    this.busRoutes.set(1, {
+      id: 1,
+      routeName: "Mumbai Express",
+      routeNumber: "BUS-123",
+      sourceStop: "Dadar",
+      destinationStop: "Sion",
+      departureTime: "07:30",
+      arrivalTime: "08:45",
+      frequency: "every 15 min",
+      busType: "express",
+      fare: "₹35",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    this.busRouteIdCounter = 2;
   }
 
+  // User operations
   async getUser(id: number): Promise<User | undefined> {
     return this.users.get(id);
   }
@@ -101,6 +189,7 @@ export class MemStorage implements IStorage {
     return Array.from(this.users.values());
   }
 
+  // Activity operations
   async getActivitiesByUserId(userId: number): Promise<Activity[]> {
     const userActivities: Activity[] = [];
     const activitiesArray = Array.from(this.activities.values());
@@ -119,6 +208,7 @@ export class MemStorage implements IStorage {
     return activity;
   }
 
+  // Document operations
   async getDocumentsByUserId(userId: number): Promise<Document[]> {
     const userDocuments: Document[] = [];
     const documentsArray = Array.from(this.documents.values());
@@ -137,6 +227,7 @@ export class MemStorage implements IStorage {
     return document;
   }
 
+  // Content operations
   async getContents(): Promise<Content[]> {
     return Array.from(this.contents.values());
   }
@@ -146,6 +237,198 @@ export class MemStorage implements IStorage {
     const content: Content = { ...contentData, id };
     this.contents.set(id, content);
     return content;
+  }
+  
+  // Train route operations
+  async getTrainRoutes(): Promise<TrainRoute[]> {
+    return Array.from(this.trainRoutes.values());
+  }
+  
+  async getTrainRoute(id: number): Promise<TrainRoute | undefined> {
+    return this.trainRoutes.get(id);
+  }
+  
+  async createTrainRoute(routeData: Omit<InsertTrainRoute, 'id'>): Promise<TrainRoute> {
+    const id = this.trainRouteIdCounter++;
+    const currentTime = new Date().toISOString();
+    
+    const trainRoute: TrainRoute = {
+      ...routeData,
+      id,
+      createdAt: currentTime,
+      updatedAt: currentTime,
+      isActive: routeData.isActive !== undefined ? routeData.isActive : true,
+      status: routeData.status || "on-time"
+    } as TrainRoute;
+    
+    this.trainRoutes.set(id, trainRoute);
+    return trainRoute;
+  }
+  
+  async updateTrainRoute(id: number, routeData: Partial<Omit<TrainRoute, 'id'>>): Promise<TrainRoute | undefined> {
+    const route = this.trainRoutes.get(id);
+    
+    if (!route) {
+      return undefined;
+    }
+    
+    const updatedRoute: TrainRoute = {
+      ...route,
+      ...routeData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    this.trainRoutes.set(id, updatedRoute);
+    return updatedRoute;
+  }
+  
+  async deleteTrainRoute(id: number): Promise<boolean> {
+    return this.trainRoutes.delete(id);
+  }
+  
+  // Bus route operations
+  async getBusRoutes(): Promise<BusRoute[]> {
+    return Array.from(this.busRoutes.values());
+  }
+  
+  async getBusRoute(id: number): Promise<BusRoute | undefined> {
+    return this.busRoutes.get(id);
+  }
+  
+  async createBusRoute(routeData: Omit<InsertBusRoute, 'id'>): Promise<BusRoute> {
+    const id = this.busRouteIdCounter++;
+    const currentTime = new Date().toISOString();
+    
+    const busRoute: BusRoute = {
+      ...routeData,
+      id,
+      createdAt: currentTime,
+      updatedAt: currentTime,
+      isActive: routeData.isActive !== undefined ? routeData.isActive : true
+    } as BusRoute;
+    
+    this.busRoutes.set(id, busRoute);
+    return busRoute;
+  }
+  
+  async updateBusRoute(id: number, routeData: Partial<Omit<BusRoute, 'id'>>): Promise<BusRoute | undefined> {
+    const route = this.busRoutes.get(id);
+    
+    if (!route) {
+      return undefined;
+    }
+    
+    const updatedRoute: BusRoute = {
+      ...route,
+      ...routeData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    this.busRoutes.set(id, updatedRoute);
+    return updatedRoute;
+  }
+  
+  async deleteBusRoute(id: number): Promise<boolean> {
+    return this.busRoutes.delete(id);
+  }
+  
+  // Crowd report operations
+  async getCrowdReports(): Promise<CrowdReport[]> {
+    return Array.from(this.crowdReports.values());
+  }
+  
+  async getCrowdReportsByUserId(userId: number): Promise<CrowdReport[]> {
+    const userReports: CrowdReport[] = [];
+    const reportsArray = Array.from(this.crowdReports.values());
+    
+    for (const report of reportsArray) {
+      if (report.userId === userId) {
+        userReports.push(report);
+      }
+    }
+    
+    return userReports;
+  }
+  
+  async getCrowdReportsByStation(stationName: string): Promise<CrowdReport[]> {
+    const stationReports: CrowdReport[] = [];
+    const reportsArray = Array.from(this.crowdReports.values());
+    
+    for (const report of reportsArray) {
+      if (report.stationName === stationName) {
+        stationReports.push(report);
+      }
+    }
+    
+    return stationReports;
+  }
+  
+  async createCrowdReport(reportData: Omit<InsertCrowdReport, 'id'>): Promise<CrowdReport> {
+    const id = this.crowdReportIdCounter++;
+    
+    const crowdReport: CrowdReport = {
+      ...reportData,
+      id,
+      isApproved: false // Crowd reports need admin approval by default
+    } as CrowdReport;
+    
+    this.crowdReports.set(id, crowdReport);
+    return crowdReport;
+  }
+  
+  async approveCrowdReport(id: number): Promise<CrowdReport | undefined> {
+    const report = this.crowdReports.get(id);
+    
+    if (!report) {
+      return undefined;
+    }
+    
+    const approvedReport: CrowdReport = {
+      ...report,
+      isApproved: true
+    };
+    
+    this.crowdReports.set(id, approvedReport);
+    return approvedReport;
+  }
+  
+  // Ad settings operations
+  async getAdSettings(): Promise<AdSetting[]> {
+    return Array.from(this.adSettings.values());
+  }
+  
+  async getAdSetting(id: number): Promise<AdSetting | undefined> {
+    return this.adSettings.get(id);
+  }
+  
+  async createAdSetting(settingData: Omit<InsertAdSetting, 'id'>): Promise<AdSetting> {
+    const id = this.adSettingIdCounter++;
+    
+    const adSetting: AdSetting = {
+      ...settingData,
+      id,
+      lastUpdated: new Date().toISOString()
+    } as AdSetting;
+    
+    this.adSettings.set(id, adSetting);
+    return adSetting;
+  }
+  
+  async updateAdSetting(id: number, settingData: Partial<Omit<AdSetting, 'id'>>): Promise<AdSetting | undefined> {
+    const setting = this.adSettings.get(id);
+    
+    if (!setting) {
+      return undefined;
+    }
+    
+    const updatedSetting: AdSetting = {
+      ...setting,
+      ...settingData,
+      lastUpdated: new Date().toISOString()
+    };
+    
+    this.adSettings.set(id, updatedSetting);
+    return updatedSetting;
   }
 }
 
