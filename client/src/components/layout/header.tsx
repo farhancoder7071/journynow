@@ -33,63 +33,68 @@ export function Header({ isAdminView, toggleAdminView }: HeaderProps) {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/">
-                <a className="flex items-center">
-                  <svg className={`h-8 w-8 ${isAdminView ? 'text-[#FF4081]' : 'text-[#1976D2]'}`} viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"></path>
-                  </svg>
-                  {!isAdminView && (
-                    <span className="ml-2 text-xl font-semibold">AppName</span>
-                  )}
-                  {isAdminView && (
-                    <span className="ml-2 text-xl font-semibold">Admin Panel</span>
-                  )}
-                </a>
-              </Link>
+              <div onClick={() => navigate("/")} className="flex items-center cursor-pointer">
+                <svg className={`h-8 w-8 ${isAdminView ? 'text-[#FF4081]' : 'text-[#1976D2]'}`} viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"></path>
+                </svg>
+                {!isAdminView && (
+                  <span className="ml-2 text-xl font-semibold">AppName</span>
+                )}
+                {isAdminView && (
+                  <span className="ml-2 text-xl font-semibold">Admin Panel</span>
+                )}
+              </div>
             </div>
             
             {/* Navigation Links */}
             <nav className="hidden md:ml-6 md:flex md:space-x-8">
               {!isAdminView ? (
                 <div className="flex space-x-8">
-                  <Link href="/">
-                    <a className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/" ? 'border-b-2 border-[#1976D2] text-[#1976D2]' : 'border-b-2 border-transparent hover:border-gray-300 text-gray-500 hover:text-gray-700'}`}>
-                      Dashboard
-                    </a>
-                  </Link>
-                  <Link href="/features">
-                    <a className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/features" ? 'border-b-2 border-[#1976D2] text-[#1976D2]' : 'border-b-2 border-transparent hover:border-gray-300 text-gray-500 hover:text-gray-700'}`}>
-                      Features
-                    </a>
-                  </Link>
-                  <Link href="/resources">
-                    <a className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/resources" ? 'border-b-2 border-[#1976D2] text-[#1976D2]' : 'border-b-2 border-transparent hover:border-gray-300 text-gray-500 hover:text-gray-700'}`}>
-                      Resources
-                    </a>
-                  </Link>
+                  <div 
+                    onClick={() => navigate("/")} 
+                    className={`inline-flex items-center px-1 pt-1 text-sm font-medium cursor-pointer ${location === "/" ? 'border-b-2 border-[#1976D2] text-[#1976D2]' : 'border-b-2 border-transparent hover:border-gray-300 text-gray-500 hover:text-gray-700'}`}
+                  >
+                    Dashboard
+                  </div>
+                  <div 
+                    onClick={() => navigate("/features")} 
+                    className={`inline-flex items-center px-1 pt-1 text-sm font-medium cursor-pointer ${location === "/features" ? 'border-b-2 border-[#1976D2] text-[#1976D2]' : 'border-b-2 border-transparent hover:border-gray-300 text-gray-500 hover:text-gray-700'}`}
+                  >
+                    Features
+                  </div>
+                  <div 
+                    onClick={() => navigate("/resources")} 
+                    className={`inline-flex items-center px-1 pt-1 text-sm font-medium cursor-pointer ${location === "/resources" ? 'border-b-2 border-[#1976D2] text-[#1976D2]' : 'border-b-2 border-transparent hover:border-gray-300 text-gray-500 hover:text-gray-700'}`}
+                  >
+                    Resources
+                  </div>
                 </div>
               ) : (
                 <div className="flex space-x-8">
-                  <Link href="/admin">
-                    <a className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/admin" ? 'border-b-2 border-[#FF4081] text-[#FF4081]' : 'border-b-2 border-transparent hover:border-gray-300 text-gray-300 hover:text-white'}`}>
-                      Overview
-                    </a>
-                  </Link>
-                  <Link href="/admin/users">
-                    <a className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/admin/users" ? 'border-b-2 border-[#FF4081] text-[#FF4081]' : 'border-b-2 border-transparent hover:border-gray-300 text-gray-300 hover:text-white'}`}>
-                      Users
-                    </a>
-                  </Link>
-                  <Link href="/admin/content">
-                    <a className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/admin/content" ? 'border-b-2 border-[#FF4081] text-[#FF4081]' : 'border-b-2 border-transparent hover:border-gray-300 text-gray-300 hover:text-white'}`}>
-                      Content
-                    </a>
-                  </Link>
-                  <Link href="/admin/settings">
-                    <a className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/admin/settings" ? 'border-b-2 border-[#FF4081] text-[#FF4081]' : 'border-b-2 border-transparent hover:border-gray-300 text-gray-300 hover:text-white'}`}>
-                      Settings
-                    </a>
-                  </Link>
+                  <div 
+                    onClick={() => navigate("/admin")} 
+                    className={`inline-flex items-center px-1 pt-1 text-sm font-medium cursor-pointer ${location === "/admin" ? 'border-b-2 border-[#FF4081] text-[#FF4081]' : 'border-b-2 border-transparent hover:border-gray-300 text-gray-300 hover:text-white'}`}
+                  >
+                    Overview
+                  </div>
+                  <div 
+                    onClick={() => navigate("/admin/users")} 
+                    className={`inline-flex items-center px-1 pt-1 text-sm font-medium cursor-pointer ${location === "/admin/users" ? 'border-b-2 border-[#FF4081] text-[#FF4081]' : 'border-b-2 border-transparent hover:border-gray-300 text-gray-300 hover:text-white'}`}
+                  >
+                    Users
+                  </div>
+                  <div 
+                    onClick={() => navigate("/admin/content")} 
+                    className={`inline-flex items-center px-1 pt-1 text-sm font-medium cursor-pointer ${location === "/admin/content" ? 'border-b-2 border-[#FF4081] text-[#FF4081]' : 'border-b-2 border-transparent hover:border-gray-300 text-gray-300 hover:text-white'}`}
+                  >
+                    Content
+                  </div>
+                  <div 
+                    onClick={() => navigate("/admin/settings")} 
+                    className={`inline-flex items-center px-1 pt-1 text-sm font-medium cursor-pointer ${location === "/admin/settings" ? 'border-b-2 border-[#FF4081] text-[#FF4081]' : 'border-b-2 border-transparent hover:border-gray-300 text-gray-300 hover:text-white'}`}
+                  >
+                    Settings
+                  </div>
                 </div>
               )}
             </nav>
@@ -136,12 +141,18 @@ export function Header({ isAdminView, toggleAdminView }: HeaderProps) {
             </div>
           ) : (
             <div className="flex space-x-4">
-              <Link href="/auth">
-                <Button variant="outline">Log in</Button>
-              </Link>
-              <Link href="/auth?tab=register">
-                <Button className="bg-[#1976D2] hover:bg-opacity-90">Sign up</Button>
-              </Link>
+              <Button 
+                variant="outline" 
+                onClick={() => navigate("/auth")}
+              >
+                Log in
+              </Button>
+              <Button 
+                className="bg-[#1976D2] hover:bg-opacity-90"
+                onClick={() => navigate("/auth?tab=register")}
+              >
+                Sign up
+              </Button>
             </div>
           )}
         </div>

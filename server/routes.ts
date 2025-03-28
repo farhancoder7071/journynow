@@ -393,6 +393,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: (error as Error).message });
     }
   });
+  
+  // Public API routes for users to view train and bus routes
+  // Get all active train routes for users
+  app.get("/api/transit/train-routes", isAuthenticated, async (req, res) => {
+    try {
+      const routes = await storage.getTrainRoutes();
+      // Only return active routes to regular users
+      const activeRoutes = routes.filter(route => route.isActive);
+      res.json(activeRoutes);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Get all active bus routes for users
+  app.get("/api/transit/bus-routes", isAuthenticated, async (req, res) => {
+    try {
+      const routes = await storage.getBusRoutes();
+      // Only return active routes to regular users
+      const activeRoutes = routes.filter(route => route.isActive);
+      res.json(activeRoutes);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Get all approved crowd reports for a specific route
+  app.get("/api/transit/crowd-reports/:transportType/:routeId", isAuthenticated, async (req, res) => {
+    try {
+      const { transportType, routeId } = req.params;
+      const reports = await storage.getCrowdReports();
+      
+      // Filter reports by transport type, route ID, and approved status
+      const filteredReports = reports.filter(report => 
+        report.transportType === transportType && 
+        report.routeId === parseInt(routeId) && 
+        report.isApproved
+      );
+      
+      res.json(filteredReports);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
 
   // Ad management (admin only)
   // Get all ad settings
