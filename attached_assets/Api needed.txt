@@ -1,0 +1,295 @@
+Essential APIs for Your M-Indicator-Like App
+🚀 1. Train Timings & Live Train Status APIs
+📌 Purpose:
+
+Fetch train schedules, arrival times, and real-time status.
+
+🔥 APIs to Use:
+
+RailwayAPI (Paid)
+
+Website: RailwayAPI
+
+Provides real-time PNR status, train schedule, station details, and live train status.
+
+Endpoints:
+
+/live/train/{train_number} → Live status
+
+/route/{train_number} → Route info
+
+/pnr/{pnr_number} → PNR status
+
+/station/{station_code} → Station info
+
+IRCTC Official API (Premium)
+
+For real-time train status.
+
+Usage: Requires authentication and commercial agreement.
+
+Endpoints:
+
+/v1/trainStatus/{train_number} → Real-time status
+
+/v1/stationSchedule/{station_code} → Station schedule
+
+✅ Free Alternative:
+
+Razorpay’s Train API (Limited free tier) → Razorpay Railway API
+
+Endpoints:
+
+/train/status
+
+/train/schedule
+
+/pnr/status
+
+✅ 2. Bus Routes & Timings APIs
+📌 Purpose:
+
+Fetch bus schedules, routes, and stop details.
+
+🔥 APIs to Use:
+
+Govt. Bus APIs (NMMT, BEST)
+
+Open Government Data (OGD) Platform India → data.gov.in
+
+Endpoints:
+
+/bus-routes → Bus routes & timings
+
+/bus-stops → Stop details
+
+/live-bus/{bus_number} → Live bus location
+
+Moovit API (Freemium)
+
+Website: Moovit
+
+Global transit data API (supports buses, metro, and trains).
+
+Endpoints:
+
+/routes → Bus routes
+
+/stops → Stop locations
+
+/times → Timings and delays
+
+✅ Free Alternative:
+
+WhereIsMyTransport (Freemium) → WhereIsMyTransport
+
+Provides bus routes, stops, and estimated arrival times.
+
+✅ 3. Metro Map & Routes API
+📌 Purpose:
+
+Display metro map, stations, and route info.
+
+🔥 APIs to Use:
+
+Google Maps Directions API
+
+Purpose: Metro directions, routes, and travel time estimation.
+
+Endpoints:
+
+/maps/api/directions/json
+
+/maps/api/route-matrix
+
+/maps/api/place/details
+
+API Key Required → Google Cloud Platform (GCP)
+
+City-Specific Metro APIs (Mumbai Metro, Delhi Metro)
+
+Endpoints:
+
+/metro/routes → Route info
+
+/metro/stations → Station details
+
+/metro/fare → Fare details
+
+✅ Free Alternative:
+
+OpenStreetMap API
+
+Open-source metro route and station data.
+
+✅ 4. Last-Mile Cab Fare APIs
+📌 Purpose:
+
+Display estimated fares from metro or train stations to final destination.
+
+🔥 APIs to Use:
+
+Uber API
+
+Website: Uber Developers
+
+Endpoints:
+
+/estimates/price → Fare estimate
+
+/estimates/time → ETA for cabs
+
+Ola API
+
+Website: Ola Developers
+
+Endpoints:
+
+/v1/products → Cab categories
+
+/v1/estimates/price → Fare estimate
+
+/v1/estimates/time → ETA
+
+✅ Free Alternative:
+
+Cab-Estimate API → [Cab-Estimate](https://cab- estimate.com)
+
+Provides free cab fare estimates.
+
+✅ 5. Crowd-Level Updates API
+📌 Purpose:
+
+Show live crowd updates reported by users.
+
+Store data in Firebase Firestore.
+
+🔥 API Flow:
+
+User Reporting Flow:
+
+POST Endpoint: /report-crowd
+
+Data:
+
+Train Number
+
+Time
+
+Crowd Level (Low, Medium, High)
+
+Store in Firebase
+
+Fetching Crowd Levels:
+
+GET Endpoint: /get-crowd/{train_number}
+
+Returns:
+
+Crowd Level
+
+Timestamp
+
+✅ Free Alternative:
+
+Use Firebase Firestore to store and retrieve crowd data.
+
+✅ 6. Emergency SOS APIs
+📌 Purpose:
+
+Connect users to emergency services.
+
+🔥 APIs to Use:
+
+Call Integration API
+
+Use Android’s native tel: intent to initiate a call.
+
+Example:
+
+php-template
+Copy
+Edit
+<a href="tel:100">Call Police</a>  
+<a href="tel:101">Call Fire</a>  
+<a href="tel:102">Call Ambulance</a>  
+Twilio API (Paid)
+
+For automated SOS SMS alerts.
+
+Endpoints:
+
+/Messages → Send SMS to emergency contacts.
+
+Free trial available
+
+✅ Free Alternative:
+
+Use Firebase Cloud Messaging (FCM) for emergency notifications.
+
+✅ 7. AdMob Integration
+📌 Purpose:
+
+Monetize your app using Google AdMob.
+
+🔥 Ad Types:
+
+Banner Ads → On home and search screens.
+
+Interstitial Ads → After multiple navigation actions.
+
+Rewarded Ads → Unlock live crowd updates or cab fares.
+
+Native Ads → Blended into route results and tips.
+
+🔥 AdMob Integration:
+
+Get AdMob API Key → AdMob
+
+Add SDK to your app.
+
+Display ads at appropriate locations.
+
+✅ 8. Firebase APIs
+📌 Purpose:
+
+Authentication: For user login.
+
+Firestore: For storing crowd-level data.
+
+Cloud Messaging: For push notifications.
+
+Storage: For metro map images, emergency icons, etc.
+
+🔥 Endpoints:
+
+/auth/signup → User registration.
+
+/auth/login → User authentication.
+
+/store/crowd-level → Store live crowd updates.
+
+/get/crowd-level → Fetch crowd-level data.
+
+✅ 🔥 Additional APIs for Enhancement
+Weather API: To display real-time weather at the train station.
+
+Flight API: To include airport transit info.
+
+Google Calendar API: For travel reminders.
+
+OpenStreetMap API: For station navigation.
+
+✅ 🔥 API Key Requirements
+📌 Essential APIs requiring API keys:
+
+Google Maps & Directions API → Navigation, route planning.
+
+RailwayAPI / IRCTC API → Train timings, live status.
+
+Moovit API → Bus routes and metro.
+
+Uber/Ola API → Cab fare estimates.
+
+AdMob API → Ad monetization.
+

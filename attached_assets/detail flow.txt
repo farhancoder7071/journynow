@@ -1,0 +1,323 @@
+📱 Detailed Flow
+✅ 1. Splash Screen
+📌 Purpose:
+
+Display the app logo and loading animation.
+
+Initialize Firebase, APIs, and AdMob.
+
+💡 Ad Integration:
+
+No ads here to avoid a poor first impression.
+
+✅ 2. Onboarding (First-Time Users Only)
+📌 Purpose:
+
+Introduce the app features and request permissions.
+
+🔥 Flow:
+
+Step 1: App overview (Train, Bus, Metro, Last-Mile, SOS).
+
+Step 2: Request location permission for accurate results.
+
+Step 3: Enable push notifications for updates.
+
+Step 4: Redirect to the Home Screen.
+
+💡 Ad Integration:
+
+No ads during onboarding to ensure smooth user experience.
+
+✅ 3. Home Screen
+📌 Purpose:
+
+Central hub with navigation options.
+
+Displays quick access to all services.
+
+🔥 Components:
+
+Train Timings → Route, crowd level, platform info.
+
+Bus Routes → City-specific bus timings & stops.
+
+Metro Map → Interactive map with route info.
+
+Last-Mile Cab Fares → Estimated fares from the last station to destination.
+
+Live Train Status → Real-time train location and delay info.
+
+Travel History → Previously searched routes.
+
+Emergency SOS → One-tap emergency call & alert.
+
+💡 Ad Integration:
+✅ Banner Ad:
+
+Display at the bottom of the home screen.
+✅ Interstitial Ad:
+
+Show after 3-4 navigation actions.
+
+✅ 4. Train Timings Screen
+📌 Purpose:
+
+Displays local and long-distance train schedules.
+
+Includes platform details, crowd level, and live train status.
+
+🔥 Flow:
+
+Search bar:
+
+Enter source & destination stations.
+
+Train list:
+
+Display routes, timings, and crowd level.
+
+Details page:
+
+Train info, live status, and crowd level.
+
+Bookmark option:
+
+Save frequently searched routes.
+
+💡 Ad Integration:
+✅ Banner Ad:
+
+At the bottom of the route results.
+✅ Interstitial Ad:
+
+After 3-4 searches.
+
+✅ 5. Bus Routes Screen
+📌 Purpose:
+
+Show bus timings, stops, and routes.
+
+Filter by bus number or destination.
+
+🔥 Flow:
+
+Search bar:
+
+Enter route or bus number.
+
+Route list:
+
+Display timing, stops, and duration.
+
+Details page:
+
+Detailed bus stop info & next arrival.
+
+Bookmark option:
+
+Save preferred routes.
+
+💡 Ad Integration:
+✅ Banner Ad:
+
+At the bottom of the route list.
+✅ Interstitial Ad:
+
+After 3-4 route searches.
+
+✅ 6. Metro Map Screen
+📌 Purpose:
+
+Interactive metro map for easy navigation.
+
+Includes route planner with estimated time.
+
+🔥 Flow:
+
+Metro Map:
+
+Tap on station → View routes.
+
+Route Planner:
+
+Source → Destination → Display route info.
+
+Station Info:
+
+Display timings and amenities.
+
+💡 Ad Integration:
+✅ Banner Ad:
+
+At the bottom of the map.
+✅ Native Ad:
+
+Blended into the route results.
+
+✅ 7. Last-Mile Cab Fare Screen
+📌 Purpose:
+
+Display estimated cab fares from station to destination.
+
+🔥 Flow:
+
+Input:
+
+Select station and destination.
+
+Estimate:
+
+Display cab fares (Ola, Uber, Auto).
+
+Call Option:
+
+Redirect to cab app.
+
+💡 Ad Integration:
+✅ Rewarded Ad:
+
+Watch an ad to unlock the fare estimate.
+✅ Banner Ad:
+
+At the bottom of the results page.
+
+✅ 8. Crowd-Level Updates Screen
+📌 Purpose:
+
+Users report live crowd levels.
+
+Display real-time crowd updates for trains.
+
+🔥 Flow:
+
+User Inputs:
+
+Select train, time, and crowd level (Low, Medium, High).
+
+Display:
+
+Show current crowd status with timestamp.
+
+💡 Ad Integration:
+✅ Rewarded Ad:
+
+Watch an ad to access crowd-level data.
+
+✅ 9. SOS & Safety Screen
+📌 Purpose:
+
+Emergency services (Police, Fire, Medical).
+
+One-tap calling and alert sharing.
+
+🔥 Flow:
+
+SOS Button:
+
+Call local emergency services.
+
+Share Location:
+
+Send your location to emergency contacts.
+
+Safety Tips:
+
+Basic travel safety tips.
+
+💡 Ad Integration:
+✅ Native Ad:
+
+At the bottom of the safety tips section.
+
+✅ 10. User Profile & Settings
+📌 Purpose:
+
+Manage profile, preferences, and history.
+
+🔥 Flow:
+
+Profile Info:
+
+Name, phone number.
+
+Travel History:
+
+Recently searched routes.
+
+Settings:
+
+Ad preferences (ad-free premium option).
+
+In-App Purchase:
+
+Option to remove ads.
+
+💡 Ad Integration:
+✅ Banner Ad:
+
+At the bottom of the history screen.
+✅ Interstitial Ad:
+
+After multiple actions.
+
+✅ 11. AdMob Integration Flow
+📌 Purpose:
+
+Monetize app with ads.
+🔥 Ad Types:
+
+Banner Ads: Home screen, result pages.
+
+Interstitial Ads: After multiple actions.
+
+Rewarded Ads: Unlock features.
+
+Native Ads: Blended into route results & safety tips.
+
+✅ 12. Push Notifications
+📌 Purpose:
+
+Real-time alerts for train delays, strikes, or bus diversions.
+🔥 Flow:
+
+Train Delay Notification
+
+Bus Diversion Alert
+
+Emergency News
+
+✅ 13. In-App Purchases (IAP)
+📌 Purpose:
+
+Offer an ad-free premium version.
+
+Unlock exclusive features (e.g., live train status without ads).
+
+🔥 Flow:
+
+Free version:
+
+With ads.
+
+Premium version:
+
+Ad-free experience.
+
+Priority crowd-level updates.
+
+Offline mode.
+
+✅ 🔥 Tech Stack Overview
+Frontend: React (Replit)
+
+Backend: Firebase (for auth, data storage)
+
+APIs:
+
+Railway API, Bus API, Ola/Uber APIs.
+
+Ad Platform: Google AdMob
+
+Payment: Google Play Billing (IAP)
+

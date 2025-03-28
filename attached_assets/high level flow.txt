@@ -1,0 +1,23 @@
+1. **Splash Screen**
+2. **Onboarding (First-Time Users Only)**
+   - Permissions (Location, Notifications)
+   - Intro to Features
+3. **Home Screen**
+   - Train Timings
+   - Bus Routes
+   - Metro Map
+   - Last-Mile Cab Fares
+   - Live Train Status
+   - Travel History
+   - Emergency SOS
+4. **Train Status Screen**
+5. **Bus Routes Screen**
+6. **Metro Map Screen**
+7. **Last-Mile Cab Fare Screen**
+8. **Crowd-Level Updates Screen**
+9. **SOS & Safety Screen**
+10. **User Profile & Settings**
+11. **AdMob Integration**
+   - Banner Ads, Interstitial Ads, Rewarded Ads, Native Ads
+12. **Push Notifications**
+13. **In-App Purchases (Ad-Free Premium Version)** 
