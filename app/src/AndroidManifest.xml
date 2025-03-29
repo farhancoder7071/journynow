@@ -1,5 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<<<<<<< HEAD
    >
+=======
+    >
+
+>>>>>>> b2d059fbb10593aca93b84ecdcd063752d9c87e6
     <application
         android:icon="@mipmap/ic_launcher"
         android:label="JourneyNow"
